@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<strings>
+   <string id="32001">General</string>
+   <string id="32002">Downloads folder</string>
+   <string id="32003">Movie folder</string>
+   <string id="32004">Tv-Series folder</string>
+   <string id="32005">Source</string>
+   <string id="32006">Destinations</string>
+   <string id="32007">Advanced</string>
+   <string id="32008">Copy instead of move</string>
+   <string id="32009">Clear whitelist!</string>
+   <string id="32010">Update media library when done</string>
+</strings>
