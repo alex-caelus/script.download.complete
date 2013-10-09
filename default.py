@@ -1,10 +1,12 @@
-import xbmc, xbmcgui, xbmcplugin
+import xbmc, xbmcgui, xbmcaddon
+import sys
 import os
 import shutil
 
 
+addon = xbmcaddon.Addon("script.download.complete")
 whitelistfilename = os.path.dirname(__file__) + "/resources/whitelist.txt"
-sourcefolder = xbmcplugin.getSetting(int(sys.argv[1]), "sourcefolder")
+sourcefolder = addon.getSetting("sourcefolder")
 
 class Item:
     """
@@ -27,12 +29,12 @@ def GetUnhandledItems():
     return [Item(i) for i in os.listdir(sourcefolder) if i not in whitelist]
     
 def UpdateMediaLibrary():
-    update = xbmcplugin.getSetting(int(sys.argv[1]), "update") == "true"
+    update = addon.getSetting("update") == "true"
     if update:
         xbmc.executebuiltin('UpdateLibrary(video)')
     
 def moveorcopy(item, destination):
-    copy = xbmcplugin.getSetting(int(sys.argv[1]), "copy") == "true"
+    copy = addon.getSetting("copy") == "true"
     p = xbmcgui.DialogProgress()
     
     try:
@@ -57,6 +59,32 @@ def moveorcopy(item, destination):
     
     UpdateMediaLibrary()
     
+def CreateDirectory(currentdir):
+    docontinue = True
+    name = ""
+    while (docontinue):
+        kb = xbmc.Keyboard('default', 'Create new directory', True)
+        kb.setDefault(name)
+        kb.setHiddenInput(False)
+        kb.doModal()
+        if kb.isConfirmed():
+            name_confirmed  = kb.getText()
+            name = name_confirmed
+            docontinue = False
+        else:
+            return ""
+              
+    #create the directory
+    if len(name) > 0:
+        create = xbmcgui.Dialog().yesno("Confirm", "Do you want to create a directory with the name", "\"" + name + "\" ?")
+        if create:
+            dir = os.path.join(currentdir, name)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+        else:
+            return ""
+    return name
+    
 def ActionPostpone(item):
     pass
     
@@ -70,18 +98,18 @@ def ActionIgnore(item):
         
     
 def ActionMovie(item):
-    destinationfolder = xbmcplugin.getSetting(int(sys.argv[1]), "moviefolder")
+    destinationfolder = addon.getSetting("moviefolder")
     moveorcopy(item, destinationfolder)
     
 def ActionTvSeries(item):
-    destinationfolder = xbmcplugin.getSetting(int(sys.argv[1]), "tvfolder")
+    destinationfolder = addon.getSetting("tvfolder")
     currentdir = ""
     
-    choices = ["# Go up", "# Put file/directory here"]
+    choices = ["# Go up", "# Add new folder here", "# Put file/directory here"]
     
     choice = -1
     while True:
-        if len(currentdir) == 0:
+        if len(currentdir) <= 0:
             choices[0] = "# Abort"
         else:
             choices[0] = "# Go up"
@@ -93,10 +121,12 @@ def ActionTvSeries(item):
             else:
                 currentdir = ""
         elif choice is 1:
+            currentdir += CreateDirectory(destinationfolder+currentdir)
+        elif choice is 2:
             moveorcopy(item, destinationfolder+currentdir)
             return
         else:
-            currentdir += series[choice-2] + "/"
+            currentdir += series[choice-3] + "/"
             
     print(path)
     
@@ -127,3 +157,4 @@ def HandleAllRemaining():
     
 #start
 HandleAllRemaining()
+
