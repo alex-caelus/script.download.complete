@@ -1,5 +1,4 @@
 import xbmc, xbmcgui, xbmcaddon
-import sys
 import os
 import shutil
 
@@ -56,8 +55,6 @@ def moveorcopy(item, destination):
         xbmcgui.Dialog().ok("Error occured", "The transfer could not be completed!\nError was:\n" + str(e))
         raise e
     p.close()
-    
-    UpdateMediaLibrary()
     
 def CreateDirectory(currentdir):
     docontinue = True
@@ -154,6 +151,7 @@ def HandleAllRemaining():
     for item in items:
         HandleItem(item)
     
+    UpdateMediaLibrary()
     
 #start
 HandleAllRemaining()
